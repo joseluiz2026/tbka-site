@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TB Knowledge Agro — Developers</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root{
+    --bg: #020602;
+    --surface: #071207;
+    --surface-alt: #0F1F0F;
+    --surface-hover: #172C17;
+    --text: #EFEAE0;
+    --text-dim: #B9C4A8;
+    --text-faint: #7E9270;
+    --line: rgba(239,234,224,0.13);
+    --line-strong: rgba(239,234,224,0.24);
+    --rust: #C1512C;
+    --rust-soft: rgba(193,81,44,0.22);
+    --gold: #C99A4A;
+    --gold-soft: rgba(201,154,74,0.20);
+    --sky: #7FA8B8;
+    --sky-soft: rgba(127,168,184,0.20);
+    --danger: #9E3A24;
+    --ok: #7FA87F;
+    --ok-soft: rgba(127,168,127,0.18);
+    --radius: 3px;
+    --serif: 'Fraunces', serif;
+    --sans: 'Inter', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:var(--sans); line-height:1.5; -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--rust-soft); color:var(--text);}
+  a{color:inherit;}
+  code{font-family:var(--mono);}
+
+  /* ---------- Top bar (idêntica ao catálogo) ---------- */
+  header.topbar{
+    position:sticky; top:0; z-index:30;
+    background:rgba(2,6,2,0.94); backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar-inner{
+    max-width:1180px; margin:0 auto; display:flex; align-items:center; justify-content:space-between;
+    padding:16px 28px;
+  }
+  .brand{display:flex; align-items:center; gap:10px; cursor:pointer;}
+  .brand-mark{
+    width:30px; height:30px; border-radius:50%;
+    background:conic-gradient(from 200deg, var(--rust), var(--gold), var(--sky), var(--rust));
+    flex-shrink:0;
+  }
+  .brand-name{font-family:var(--serif); font-size:18px; font-weight:600; letter-spacing:0.2px;}
+  .brand-sub{font-family:var(--mono); font-size:10.5px; color:var(--text-faint); letter-spacing:0.06em; text-transform:uppercase; margin-top:1px;}
+  nav.topnav{display:flex; gap:26px; font-size:13.5px; color:var(--text-dim);}
+  nav.topnav a{cursor:pointer; transition:color .15s; text-decoration:none;}
+  nav.topnav a:hover{color:var(--text);}
+  nav.topnav a.active{color:var(--rust);}
+  .menu-toggle{
+    display:none; align-items:center; justify-content:center;
+    width:38px; height:34px; background:none; border:1px solid var(--line-strong);
+    border-radius:var(--radius); color:var(--text); font-size:16px; cursor:pointer;
+  }
+
+  /* ---------- Hero — grade de pontos em vez da foto do cafezal ---------- */
+  .dev-hero{
+    position:relative; overflow:hidden;
+    background-color:var(--bg);
+    background-image:
+      radial-gradient(rgba(193,81,44,0.18) 1px, transparent 1px),
+      radial-gradient(rgba(127,168,184,0.10) 1px, transparent 1px);
+    background-size:26px 26px, 26px 26px;
+    background-position:0 0, 13px 13px;
+    border-bottom:1px solid var(--line);
+  }
+  .dev-hero::before{
+    content:''; position:absolute; inset:0;
+    background:radial-gradient(ellipse 60% 50% at 50% 0%, rgba(2,6,2,0) 0%, var(--bg) 78%);
+  }
+  .dev-hero-inner{
+    position:relative; max-width:1180px; margin:0 auto; padding:88px 28px 56px; text-align:center;
+  }
+  .status-pill{
+    display:inline-flex; align-items:center; gap:7px; font-family:var(--mono); font-size:11.5px;
+    color:var(--gold); background:var(--gold-soft); border:1px solid var(--gold);
+    padding:6px 13px; border-radius:20px; margin-bottom:26px; letter-spacing:0.02em;
+  }
+  .status-pill .dot{width:6px; height:6px; border-radius:50%; background:var(--gold); animation:pulse 2s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:1;} 50%{opacity:0.35;}}
+  .dev-hero h1{
+    font-family:var(--serif); font-weight:500; font-size:clamp(30px, 4.2vw, 50px);
+    line-height:1.08; margin:0 auto 20px; max-width:17ch; letter-spacing:-0.01em;
+  }
+  .dev-hero h1 em{font-style:italic; color:var(--rust); font-weight:500;}
+  .dev-hero p.lede{font-size:16px; color:var(--text-dim); max-width:58ch; margin:0 auto 34px;}
+  .hero-ctas{display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-bottom:52px;}
+  .btn{
+    font-family:var(--sans); font-size:13.5px; font-weight:600; padding:11px 20px;
+    border-radius:var(--radius); cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:8px;
+    transition:.15s; border:1px solid transparent;
+  }
+  .btn-primary{background:var(--rust); color:#0A0A0A;}
+  .btn-primary:hover{filter:brightness(1.1);}
+  .btn-ghost{background:transparent; border-color:var(--line-strong); color:var(--text-dim);}
+  .btn-ghost:hover{border-color:var(--rust); color:var(--text);}
+
+  .hero-stats{display:flex; gap:0; flex-wrap:wrap; justify-content:center; border-top:1px solid var(--line); max-width:820px; margin:0 auto;}
+  .stat{padding:18px 28px 0 28px; min-width:150px;}
+  .stat + .stat{border-left:1px solid var(--line);}
+  .stat .num{font-family:var(--serif); font-size:26px; color:var(--text); display:block;}
+  .stat .label{font-size:11.5px; color:var(--text-faint); margin-top:2px;}
+
+  /* ---------- Layout geral ---------- */
+  main{max-width:1180px; margin:0 auto; padding:0 28px 90px;}
+  section.dev-section{padding:70px 0; border-bottom:1px solid var(--line);}
+  section.dev-section:last-of-type{border-bottom:none;}
+  .section-head{max-width:640px; margin-bottom:40px;}
+  .section-eyebrow{
+    font-family:var(--mono); font-size:11px; color:var(--rust); text-transform:uppercase;
+    letter-spacing:0.09em; margin-bottom:12px; display:flex; align-items:center; gap:10px;
+  }
+  .section-head h2{font-family:var(--serif); font-weight:500; font-size:clamp(24px,2.8vw,32px); margin:0 0 12px; line-height:1.2;}
+  .section-head p{color:var(--text-dim); font-size:15px; margin:0; line-height:1.6;}
+
+  /* ---------- Visão geral: dois cartões contrastantes ---------- */
+  .overview-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  .overview-card{background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:26px;}
+  .overview-card.today{border-left:2px solid var(--ok);}
+  .overview-card.future{border-left:2px solid var(--rust);}
+  .overview-card h3{font-family:var(--serif); font-size:19px; font-weight:500; margin:0 0 14px;}
+  .overview-card ul{margin:0; padding:0; list-style:none;}
+  .overview-card li{
+    font-size:13.5px; color:var(--text-dim); padding:9px 0; border-top:1px solid var(--line);
+    display:flex; gap:10px; align-items:flex-start; line-height:1.5;
+  }
+  .overview-card li:first-of-type{border-top:none;}
+  .overview-card li .mark{font-family:var(--mono); font-size:12px; flex-shrink:0; margin-top:1px;}
+  .overview-card.today li .mark{color:var(--ok);}
+  .overview-card.future li .mark{color:var(--rust);}
+
+  /* ---------- Autenticação ---------- */
+  .auth-panel{
+    background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:28px; max-width:640px;
+  }
+  .auth-panel label{
+    display:block; font-family:var(--mono); font-size:10.5px; text-transform:uppercase; letter-spacing:0.06em;
+    color:var(--text-faint); margin-bottom:8px;
+  }
+  .auth-row{display:flex; gap:10px; margin-bottom:18px;}
+  .auth-row input{
+    flex:1; background:var(--bg); border:1px solid var(--line-strong); color:var(--text);
+    padding:11px 13px; border-radius:var(--radius); font-family:var(--sans); font-size:13.5px; outline:none;
+  }
+  .auth-row input:focus{border-color:var(--rust);}
+  .key-output{
+    display:none; background:var(--bg); border:1px solid var(--line-strong); border-radius:var(--radius);
+    padding:14px 16px; margin-bottom:14px; align-items:center; justify-content:space-between; gap:12px;
+  }
+  .key-output.show{display:flex;}
+  .key-output code{font-size:13px; color:var(--gold); word-break:break-all;}
+  .copy-btn{
+    background:var(--surface-alt); border:1px solid var(--line-strong); color:var(--text-dim);
+    padding:7px 12px; border-radius:var(--radius); font-family:var(--sans); font-size:12px; font-weight:600;
+    cursor:pointer; white-space:nowrap; flex-shrink:0; transition:.15s;
+  }
+  .copy-btn:hover{border-color:var(--rust); color:var(--text);}
+  .auth-note{font-size:11.5px; color:var(--text-faint); line-height:1.55; margin:0;}
+  .auth-note strong{color:var(--text-dim);}
+
+  /* ---------- Endpoints ---------- */
+  .endpoint-card{
+    display:grid; grid-template-columns:1fr 1fr; gap:0; border:1px solid var(--line); border-radius:6px;
+    overflow:hidden; margin-bottom:18px;
+  }
+  .endpoint-info{background:var(--surface); padding:26px;}
+  .endpoint-example{background:#05100A; padding:26px; border-left:1px solid var(--line);}
+  .method-path{display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap;}
+  .method{
+    font-family:var(--mono); font-size:11px; font-weight:600; padding:3px 9px; border-radius:3px; letter-spacing:0.03em;
+  }
+  .method.get{background:var(--sky-soft); color:var(--sky);}
+  .method.post{background:var(--rust-soft); color:var(--rust);}
+  .path{font-family:var(--mono); font-size:13.5px; color:var(--text);}
+  .endpoint-info h3{font-family:var(--serif); font-size:17px; font-weight:500; margin:0 0 10px;}
+  .endpoint-info p{font-size:13.5px; color:var(--text-dim); line-height:1.6; margin:0 0 16px;}
+  .param-table{width:100%; border-collapse:collapse; font-size:12.5px;}
+  .param-table th{
+    text-align:left; font-family:var(--mono); font-size:10px; text-transform:uppercase; color:var(--text-faint);
+    padding:6px 8px 6px 0; letter-spacing:0.05em; border-bottom:1px solid var(--line);
+  }
+  .param-table td{padding:8px 8px 8px 0; border-bottom:1px solid var(--line); color:var(--text-dim); vertical-align:top;}
+  .param-table td:first-child{font-family:var(--mono); color:var(--gold); white-space:nowrap;}
+  .param-table tr:last-child td{border-bottom:none;}
+  .code-label{font-family:var(--mono); font-size:10px; text-transform:uppercase; color:var(--text-faint); letter-spacing:0.06em; margin-bottom:10px;}
+  pre.code-block{
+    margin:0; font-family:var(--mono); font-size:12px; line-height:1.65; color:var(--text-dim);
+    overflow-x:auto; white-space:pre;
+  }
+  pre.code-block + .code-label{margin-top:18px;}
+  .jk{color:var(--gold);} .js{color:var(--sky);} .jn{color:var(--rust);} .jb{color:var(--rust);} .jz{color:var(--text-faint);}
+  @media (max-width:820px){ .endpoint-card{grid-template-columns:1fr;} .endpoint-example{border-left:none; border-top:1px solid var(--line);} }
+
+  /* ---------- Playground ---------- */
+  .playground{background:var(--surface); border:1px solid var(--line); border-radius:6px; overflow:hidden;}
+  .pg-controls{padding:24px 26px; border-bottom:1px solid var(--line); display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end;}
+  .pg-field{display:flex; flex-direction:column; gap:7px;}
+  .pg-field label{font-family:var(--mono); font-size:10px; text-transform:uppercase; color:var(--text-faint); letter-spacing:0.06em;}
+  .pg-field select, .pg-field input{
+    background:var(--bg); border:1px solid var(--line-strong); color:var(--text);
+    padding:9px 12px; border-radius:var(--radius); font-family:var(--sans); font-size:13px; outline:none; min-width:190px;
+  }
+  .pg-field input{font-family:var(--mono); min-width:240px;}
+  .pg-field select:focus, .pg-field input:focus{border-color:var(--rust);}
+  .pg-run{
+    background:var(--rust); border:none; color:#0A0A0A; font-weight:700; font-family:var(--sans);
+    padding:10px 20px; border-radius:var(--radius); cursor:pointer; font-size:13.5px; height:fit-content;
+  }
+  .pg-run:hover{filter:brightness(1.08);}
+  .pg-response{background:#05100A; min-height:180px;}
+  .pg-response-head{
+    display:flex; justify-content:space-between; align-items:center; padding:12px 26px;
+    border-bottom:1px solid var(--line); font-family:var(--mono); font-size:11px; color:var(--text-faint);
+  }
+  .pg-status{font-weight:600;}
+  .pg-status.ok{color:var(--ok);}
+  .pg-status.err{color:var(--rust);}
+  .pg-response pre{margin:0; padding:22px 26px; font-family:var(--mono); font-size:12.5px; line-height:1.7; color:var(--text-dim); overflow-x:auto;}
+  .pg-sim-note{
+    padding:12px 26px; font-size:11px; color:var(--text-faint); border-top:1px solid var(--line); line-height:1.5; font-style:italic;
+  }
+
+  /* ---------- Schema table ---------- */
+  .schema-table-wrap{background:var(--surface); border:1px solid var(--line); border-radius:6px; overflow-x:auto;}
+  table.schema-table{width:100%; border-collapse:collapse; font-size:13px;}
+  .schema-table th{
+    text-align:left; font-family:var(--mono); font-size:10.5px; text-transform:uppercase; color:var(--text-faint);
+    padding:12px 18px; letter-spacing:0.05em; border-bottom:1px solid var(--line-strong); white-space:nowrap;
+  }
+  .schema-table td{padding:12px 18px; border-bottom:1px solid var(--line); color:var(--text-dim); vertical-align:top;}
+  .schema-table tr:last-child td{border-bottom:none;}
+  .schema-table td:first-child{font-family:var(--mono); color:var(--gold); white-space:nowrap;}
+  .schema-table td:nth-child(2){font-family:var(--mono); font-size:11.5px; color:var(--sky); white-space:nowrap;}
+
+  /* ---------- Roadmap ---------- */
+  .roadmap{display:flex; flex-direction:column; border-left:1px solid var(--line-strong); margin-left:8px;}
+  .rm-step{position:relative; padding:0 0 34px 30px;}
+  .rm-step:last-child{padding-bottom:0;}
+  .rm-step::before{
+    content:''; position:absolute; left:-6px; top:2px; width:11px; height:11px; border-radius:50%;
+    background:var(--bg); border:2px solid var(--line-strong);
+  }
+  .rm-step.done::before{border-color:var(--ok); background:var(--ok);}
+  .rm-step.now::before{border-color:var(--rust); background:var(--rust);}
+  .rm-tag{font-family:var(--mono); font-size:10.5px; color:var(--text-faint); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:5px;}
+  .rm-step.now .rm-tag{color:var(--rust);}
+  .rm-step.done .rm-tag{color:var(--ok);}
+  .rm-step h4{font-family:var(--serif); font-size:16.5px; font-weight:500; margin:0 0 5px;}
+  .rm-step p{margin:0; font-size:13px; color:var(--text-dim); line-height:1.55; max-width:56ch;}
+
+  footer{
+    max-width:1180px; margin:0 auto; padding:36px 28px 60px; border-top:1px solid var(--line);
+    color:var(--text-faint); font-size:12px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px;
+  }
+
+  @media (max-width:640px){
+    .topbar-inner{padding:14px 18px;}
+    .menu-toggle{display:flex;}
+    nav.topnav{
+      display:none; position:absolute; top:100%; left:0; right:0;
+      flex-direction:column; gap:0; background:var(--bg); border-bottom:1px solid var(--line);
+      padding:6px 0;
+    }
+    nav.topnav.open{display:flex;}
+    nav.topnav a{padding:13px 18px; border-top:1px solid var(--line);}
+    .dev-hero-inner{padding:52px 18px 34px;}
+    section.dev-section{padding:50px 0;}
+    main{padding:0 18px 60px;}
+    .overview-grid{grid-template-columns:1fr;}
+    .pg-field select, .pg-field input{min-width:0; width:100%;}
+    .pg-controls{flex-direction:column; align-items:stretch;}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="tbka_prototype.html" style="text-decoration:none;">
+      <div class="brand-mark"></div>
+      <div>
+        <div class="brand-name">TB Knowledge Agro</div>
+        <div class="brand-sub">Biblioteca Agrícola · Protótipo v0.1</div>
+      </div>
+    </a>
+    <nav class="topnav" id="topnav">
+      <a href="tbka_prototype.html">Biblioteca</a>
+      <a href="tbka_developers.html" class="active">Developers</a>
+      <a href="tbka_sobre.html">Sobre o dataset</a>
+    </nav>
+    <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu" onclick="document.getElementById('topnav').classList.toggle('open')">☰</button>
+  </div>
+</header>
+
+<div class="dev-hero">
+  <div class="dev-hero-inner">
+    <div class="status-pill"><span class="dot"></span> Especificação preview — API ainda não está em produção</div>
+    <h1>A mesma base de conhecimento, <em>pronta pra virar API.</em></h1>
+    <p class="lede">Esta página documenta a interface planejada para consumir os 50 registros da TB Knowledge Agro por fora do catálogo — incluindo o TerraBase e outros consumidores. Hoje o formato abaixo é uma especificação; o playground simula as respostas localmente, sem servidor.</p>
+    <div class="hero-ctas">
+      <a href="#endpoints" class="btn btn-primary">Ver endpoints planejados</a>
+      <a href="#playground" class="btn btn-ghost">Testar playground simulado</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><span class="num">4</span><span class="label">endpoints especificados</span></div>
+      <div class="stat"><span class="num">50</span><span class="label">registros na base hoje</span></div>
+      <div class="stat"><span class="num">0</span><span class="label">chamadas reais em produção</span></div>
+      <div class="stat"><span class="num">v0.1</span><span class="label">versão da especificação</span></div>
+    </div>
+  </div>
+</div>
+
+<main>
+
+  <section class="dev-section" id="overview">
+    <div class="section-head">
+      <div class="section-eyebrow">Visão geral</div>
+      <h2>O que existe hoje e o que ainda é plano</h2>
+      <p>Ser direto aqui evita que alguém integre contra algo que não existe. A tabela abaixo separa o que já está funcionando do que ainda está em especificação.</p>
+    </div>
+    <div class="overview-grid">
+      <div class="overview-card today">
+        <h3>Já existe</h3>
+        <ul>
+          <li><span class="mark">✓</span> Catálogo estático de 50 registros, navegável na Biblioteca</li>
+          <li><span class="mark">✓</span> Busca e filtros por categoria, cultura e região, rodando no navegador</li>
+          <li><span class="mark">✓</span> Identificação por foto, servida pelo backend real — o navegador nunca vê nenhuma chave de IA</li>
+          <li><span class="mark">✓</span> Servidor real (<code>tbka-api</code>) respondendo nos quatro endpoints abaixo, em produção</li>
+          <li><span class="mark">✓</span> Chaves de API funcionais, emitidas manualmente mediante cadastro — ver Termos de uso</li>
+        </ul>
+      </div>
+      <div class="overview-card future">
+        <h3>Ainda não existe</h3>
+        <ul>
+          <li><span class="mark">✕</span> Emissão de chave self-serve (hoje é sempre manual, por pedido)</li>
+          <li><span class="mark">✕</span> Faturamento ou painel de consumo por app</li>
+          <li><span class="mark">✕</span> Busca semântica por sintomas (hoje é correspondência por palavra-chave)</li>
+          <li><span class="mark">✕</span> Este playground ainda simula chamadas lendo os dados do catálogo, em vez de bater no servidor real</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="dev-section" id="auth">
+    <div class="section-head">
+      <div class="section-eyebrow">Autenticação</div>
+      <h2>Chave de acesso</h2>
+      <p>Toda aplicação autentica com uma chave no cabeçalho <code>Authorization: Bearer &lt;chave&gt;</code>. A API está em produção, mas a emissão de chaves ainda é manual — não existe cadastro self-serve nesta versão. Gere abaixo uma chave no formato final só pra ver como ela se parece; ela não ativa nada.</p>
+    </div>
+    <div class="auth-panel">
+      <label for="keyProjectName">Nome do projeto (opcional)</label>
+      <div class="auth-row">
+        <input type="text" id="keyProjectName" placeholder="ex: terrabase-producao, app-representante…">
+        <button class="btn btn-primary" style="flex-shrink:0;" onclick="generatePreviewKey()">Gerar chave de exemplo</button>
+      </div>
+      <div class="key-output" id="keyOutput">
+        <code id="keyValue"></code>
+        <button class="copy-btn" onclick="copyKey()">Copiar</button>
+      </div>
+      <p class="auth-note"><strong>Chave ilustrativa, não funcional.</strong> Ela é gerada aqui mesmo no navegador e não é enviada a nenhum servidor. Pra obter uma chave que funcione de verdade, leia os Termos de uso abaixo e solicite acesso — hoje toda chave é emitida manualmente, uma por uma.</p>
+    </div>
+  </section>
+
+  <section class="dev-section" id="terms">
+    <div class="section-head">
+      <div class="section-eyebrow">Acesso</div>
+      <h2>Termos de uso</h2>
+      <p>Regras válidas para toda chave de API emitida, enquanto a TBKA estiver nesta fase de acesso manual e sem faturamento.</p>
+    </div>
+    <div class="overview-grid">
+      <div class="overview-card today">
+        <h3>Permitido</h3>
+        <ul>
+          <li><span class="mark">✓</span> Consultar o catálogo e usar a identificação por foto dentro de uma aplicação própria</li>
+          <li><span class="mark">✓</span> Citar a fonte ("Dataset TB Knowledge Agro") quando os dados aparecerem publicamente em outro produto</li>
+          <li><span class="mark">✓</span> Uso comercial, desde que dentro dos limites de requisição da chave</li>
+        </ul>
+      </div>
+      <div class="overview-card future">
+        <h3>Não permitido</h3>
+        <ul>
+          <li><span class="mark">✕</span> Redistribuir ou revender o dataset bruto (os 50 registros) fora de uma aplicação que consuma a API</li>
+          <li><span class="mark">✕</span> Scraping em massa ou automação que contorne o limite de requisições da chave</li>
+          <li><span class="mark">✕</span> Compartilhar a própria chave com terceiros — cada aplicação/projeto tem a sua</li>
+          <li><span class="mark">✕</span> Reintroduzir nome comercial de insumo ou dosagem em cima da resposta da API — o dataset já retorna só categoria de insumo, por exigência legal (Lei 14.785/2023 e Resolução Confea 1.149/2025), e isso não pode ser contornado a jusante</li>
+        </ul>
+      </div>
+    </div>
+    <p class="auth-note" style="margin-top:16px;">
+      <strong>Como pedir uma chave:</strong> hoje a emissão é manual — não há formulário automático. Descreva o projeto e o uso pretendido e a chave é gerada e enviada por fora.
+      <strong>Limites:</strong> cada chave tem um limite padrão de requisições por minuto; se seu caso de uso precisar de mais, informe ao pedir a chave.
+      <strong>Revogação:</strong> uma chave pode ser revogada a qualquer momento em caso de uso fora destes termos, sem aviso prévio.
+    </p>
+  </section>
+
+  <section class="dev-section" id="endpoints">
+    <div class="section-head">
+      <div class="section-eyebrow">Endpoints planejados</div>
+      <h2>Quatro operações cobrem o catálogo inteiro</h2>
+      <p>A base já é pequena e bem tipada — não há necessidade de uma superfície grande de API. Estes quatro endpoints espelham exatamente o que o catálogo já faz na interface.</p>
+    </div>
+
+    <div class="endpoint-card">
+      <div class="endpoint-info">
+        <div class="method-path"><span class="method get">GET</span><span class="path">/v1/records</span></div>
+        <h3>Listar registros</h3>
+        <p>Retorna registros do catálogo, com os mesmos filtros já disponíveis na Biblioteca.</p>
+        <table class="param-table">
+          <tr><th>Parâmetro</th><th>Descrição</th></tr>
+          <tr><td>categoria</td><td>Filtra por uma das 8 categorias (ex: Praga, Doença Fúngica)</td></tr>
+          <tr><td>cultura</td><td>Café Arábica, Café Conilon, ou ambos</td></tr>
+          <tr><td>regiao</td><td>Estadual, Sul ou Norte/Noroeste ES</td></tr>
+          <tr><td>q</td><td>Busca livre por nome, sintoma ou espécie científica</td></tr>
+        </table>
+      </div>
+      <div class="endpoint-example">
+        <div class="code-label">Requisição</div>
+        <pre class="code-block">curl https://api.tbknowledgeagro.com/v1/records \
+  -H "Authorization: Bearer &lt;chave&gt;" \
+  -G --data-urlencode "categoria=Praga" \
+     --data-urlencode "cultura=Café Conilon"</pre>
+      </div>
+    </div>
+
+    <div class="endpoint-card">
+      <div class="endpoint-info">
+        <div class="method-path"><span class="method get">GET</span><span class="path">/v1/records/{id}</span></div>
+        <h3>Buscar um registro</h3>
+        <p>Retorna a ficha técnica completa de um registro pelo seu código (ex: <code>CAF-001</code>), com todos os campos exibidos na ficha do catálogo.</p>
+        <table class="param-table">
+          <tr><th>Parâmetro</th><th>Descrição</th></tr>
+          <tr><td>id</td><td>Código do registro, CAF-001 a CAF-050</td></tr>
+        </table>
+      </div>
+      <div class="endpoint-example">
+        <div class="code-label">Requisição</div>
+        <pre class="code-block">curl https://api.tbknowledgeagro.com/v1/records/CAF-001 \
+  -H "Authorization: Bearer &lt;chave&gt;"</pre>
+      </div>
+    </div>
+
+    <div class="endpoint-card">
+      <div class="endpoint-info">
+        <div class="method-path"><span class="method post">POST</span><span class="path">/v1/identify</span></div>
+        <h3>Identificar por sintomas ou foto</h3>
+        <p>Recebe uma descrição textual (e, futuramente, fotos por parte da planta) e retorna até 3 candidatos do catálogo, nunca um diagnóstico fora da base — mesma regra já aplicada na identificação por foto do protótipo.</p>
+        <table class="param-table">
+          <tr><th>Parâmetro</th><th>Descrição</th></tr>
+          <tr><td>descricao</td><td>Texto livre descrevendo os sintomas observados</td></tr>
+          <tr><td>parte</td><td>Opcional: folhas, caule, base, raízes</td></tr>
+        </table>
+      </div>
+      <div class="endpoint-example">
+        <div class="code-label">Requisição</div>
+        <pre class="code-block">curl -X POST https://api.tbknowledgeagro.com/v1/identify \
+  -H "Authorization: Bearer &lt;chave&gt;" \
+  -H "Content-Type: application/json" \
+  -d '{"descricao": "manchas alaranjadas na folha"}'</pre>
+      </div>
+    </div>
+
+    <div class="endpoint-card">
+      <div class="endpoint-info">
+        <div class="method-path"><span class="method get">GET</span><span class="path">/v1/records/search</span></div>
+        <h3>Busca por sintoma (roadmap)</h3>
+        <p>Planejada para busca semântica — encontrar registros por similaridade de sintomas mesmo sem palavras exatas em comum. Hoje o catálogo já faz correspondência por palavra-chave; a versão semântica depende do dataset v2.0 (IA treinada).</p>
+        <table class="param-table">
+          <tr><th>Parâmetro</th><th>Descrição</th></tr>
+          <tr><td>sintoma</td><td>Descrição livre do sintoma observado</td></tr>
+        </table>
+      </div>
+      <div class="endpoint-example">
+        <div class="code-label">Status</div>
+        <pre class="code-block">// Ainda não especificado em detalhe.
+// Depende do dataset v2.0 (IA treinada) — ver Roadmap abaixo.</pre>
+      </div>
+    </div>
+  </section>
+
+  <section class="dev-section" id="playground">
+    <div class="section-head">
+      <div class="section-eyebrow">Playground</div>
+      <h2>Simule uma chamada</h2>
+      <p>Roda inteiramente no seu navegador, lendo os mesmos 50 registros do catálogo — não existe uma chamada de rede real acontecendo aqui.</p>
+    </div>
+    <div class="playground">
+      <div class="pg-controls">
+        <div class="pg-field">
+          <label for="pgEndpoint">Endpoint</label>
+          <select id="pgEndpoint" onchange="updatePlaygroundFields()">
+            <option value="list">GET /v1/records</option>
+            <option value="byId">GET /v1/records/{id}</option>
+            <option value="identify">POST /v1/identify</option>
+          </select>
+        </div>
+        <div class="pg-field" id="pgFieldA">
+          <label id="pgFieldALabel">categoria</label>
+          <input type="text" id="pgInputA" placeholder="ex: Praga">
+        </div>
+        <div class="pg-field" id="pgFieldB">
+          <label id="pgFieldBLabel">cultura</label>
+          <input type="text" id="pgInputB" placeholder="ex: Café Conilon">
+        </div>
+        <button class="pg-run" onclick="runPlayground()">Simular chamada</button>
+      </div>
+      <div class="pg-response">
+        <div class="pg-response-head">
+          <span>Resposta simulada</span>
+          <span class="pg-status ok" id="pgStatus">200 OK</span>
+        </div>
+        <pre id="pgOutput">// Escolha um endpoint e clique em "Simular chamada".</pre>
+      </div>
+      <div class="pg-sim-note">Simulação client-side — o JSON acima ilustra o formato de resposta planejado, montado a partir dos dados reais do catálogo, sem nenhuma chamada de rede.</div>
+    </div>
+  </section>
+
+  <section class="dev-section" id="schema">
+    <div class="section-head">
+      <div class="section-eyebrow">Referência</div>
+      <h2>Schema de um registro</h2>
+      <p>Todo registro retornado pela API (ou visível no playground acima) segue estes campos, os mesmos usados internamente pelo catálogo.</p>
+    </div>
+    <div class="schema-table-wrap">
+      <table class="schema-table">
+        <tr><th>Campo</th><th>Tipo</th><th>Descrição</th></tr>
+        <tr><td>id</td><td>string</td><td>Código do registro, ex: CAF-001</td></tr>
+        <tr><td>ranking</td><td>number</td><td>Posição de relevância dentro do dataset</td></tr>
+        <tr><td>categoria</td><td>string</td><td>Uma ou mais das 8 categorias, separadas por ";"</td></tr>
+        <tr><td>cultura</td><td>string</td><td>Café Arábica, Café Conilon, ou ambos</td></tr>
+        <tr><td>regiao</td><td>string</td><td>Abrangência geográfica no Espírito Santo</td></tr>
+        <tr><td>nome</td><td>string</td><td>Nome popular do problema</td></tr>
+        <tr><td>cientifico</td><td>string</td><td>Nome científico do agente, quando aplicável</td></tr>
+        <tr><td>agente</td><td>string</td><td>Organismo ou causa física/química responsável</td></tr>
+        <tr><td>parte</td><td>string</td><td>Parte da planta tipicamente afetada</td></tr>
+        <tr><td>sint_inicial</td><td>string</td><td>Sintomas no estágio inicial</td></tr>
+        <tr><td>sint_avancado</td><td>string</td><td>Sintomas no estágio avançado</td></tr>
+        <tr><td>confianca</td><td>number</td><td>Confiabilidade de triagem por fotografia, de 0 a 1</td></tr>
+        <tr><td>manejo_prev</td><td>string</td><td>Manejo preventivo, por categoria de insumo — nunca marca ou dose</td></tr>
+        <tr><td>manejo_corr</td><td>string</td><td>Manejo corretivo, por categoria de insumo — nunca marca ou dose</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section class="dev-section" id="roadmap">
+    <div class="section-head">
+      <div class="section-eyebrow">Roadmap</div>
+      <h2>Do dataset estático à API real</h2>
+      <p>Esta é uma sequência real de versões, na ordem em que estão planejadas — não uma lista decorativa.</p>
+    </div>
+    <div class="roadmap">
+      <div class="rm-step done">
+        <div class="rm-tag">v1.1 — atual</div>
+        <h4>50 registros, catálogo estático</h4>
+        <p>Dataset consolidado e navegável na Biblioteca, sem backend — este site é um arquivo único.</p>
+      </div>
+      <div class="rm-step">
+        <div class="rm-tag">v1.2</div>
+        <h4>Revisão técnica por agrônomo</h4>
+        <p>Validação de cada ficha por um engenheiro agrônomo antes de qualquer uso além de consulta e triagem.</p>
+      </div>
+      <div class="rm-step">
+        <div class="rm-tag">v1.3</div>
+        <h4>Fotos reais</h4>
+        <p>Substituição das fotos geradas por IA por fotografias de campo confirmadas.</p>
+      </div>
+      <div class="rm-step">
+        <div class="rm-tag">v2.0</div>
+        <h4>IA treinada + busca semântica</h4>
+        <p>Base para o endpoint <code>/v1/records/search</code> funcionar por similaridade de sintomas, não só palavra-chave.</p>
+      </div>
+      <div class="rm-step done">
+        <div class="rm-tag">Concluído</div>
+        <h4>Backend real</h4>
+        <p>Servidor em produção (<code>tbka-api</code>) respondendo nos quatro endpoints, com autenticação por chave e identificação por foto processada no servidor — já consumível por terceiros, incluindo o TerraBase.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div>TB Knowledge Agro — API em produção; emissão de chave e playground ainda são manuais/ilustrativos nesta fase.</div>
+  <div>Dataset: TBKA Coffee ES v1.1 · 50 registros</div>
+</footer>
+
+<script>
+const DATA = [
+{id:"CAF-001", ranking:1, categoria:"Doença Fúngica", cultura:"Café Arábica e Café Conilon", regiao:"Estadual", nome:"Ferrugem do cafeeiro", cientifico:"Hemileia vastatrix Berkeley & Broome", agente:"Fungo biotrófico", parte:"Folhas e ramos produtivos", sint_inicial:"Pequenas manchas cloróticas, geralmente visíveis na face superior, correspondendo a infecções na face inferior.", sint_avancado:"Pústulas amarelo-alaranjadas, necrose, desfolha e seca de ramos laterais.", confianca:0.85, manejo_prev:"Adubação equilibrada, arejamento da lavoura (poda/desbaste) e uso de cultivares resistentes.", manejo_corr:"Fungicida sistêmico ou protetor registrado para ferrugem, conforme orientação de agrônomo."},
+{id:"CAF-002", ranking:2, categoria:"Praga", cultura:"Café Arábica", regiao:"Sul ES e Estadual", nome:"Bicho-mineiro", cientifico:"Leucoptera coffeella (Guérin-Mèneville)", agente:"Larva de mariposa, Lepidoptera: Lyonetiidae", parte:"Folhas", sint_inicial:"Pequenas áreas translúcidas ou esbranquiçadas no limbo, causadas pela alimentação interna da larva.", sint_avancado:"Minas ampliadas, necrose, rasgamento da folha, intensa desfolha e redução da área fotossintética.", confianca:0.80, manejo_prev:"Monitoramento com armadilhas e preservação de inimigos naturais (parasitoides).", manejo_corr:"Inseticida seletivo registrado, priorizando controle biológico quando possível."},
+{id:"CAF-003", ranking:3, categoria:"Praga", cultura:"Café Arábica e Café Conilon", regiao:"Estadual", nome:"Broca-do-café", cientifico:"Hypothenemus hampei (Ferrari)", agente:"Besouro; fêmea adulta perfura e oviposita no fruto", parte:"Frutos e sementes", sint_inicial:"Orifício circular escuro próximo à coroa ou à região equatorial do fruto; queda prematura em ataques iniciais.", sint_avancado:"Galerias internas, destruição da semente, frutos brocados, perda de peso, queda de qualidade e aumento de frutos secos ou chochos.", confianca:0.70, manejo_prev:"Colheita e repasse (catação) completos, eliminação de frutos residuais na planta e no solo.", manejo_corr:"Controle biológico com fungo entomopatogênico ou inseticida específico registrado."},
+{id:"CAF-004", ranking:4, categoria:"Doença Fúngica", cultura:"Café Arábica e Café Conilon", regiao:"Estadual", nome:"Cercosporiose ou mancha-de-olho-pardo", cientifico:"Cercospora coffeicola Berkeley & Cooke", agente:"Fungo necrotrófico", parte:"Folhas, frutos e ocasionalmente ramos", sint_inicial:"Pequenas manchas pardas, frequentemente com centro claro e halo amarelado.", sint_avancado:"Lesões circulares maiores, centro pardo-acinzentado, queda de folhas, lesões em frutos, maturação irregular e perda de qualidade.", confianca:0.78, manejo_prev:"Adubação equilibrada e sombreamento adequado.", manejo_corr:"Fungicida cúprico ou sistêmico registrado, conforme nível de infecção."},
+{id:"CAF-005", ranking:5, categoria:"Doença Fúngica", cultura:"Café Arábica", regiao:"Sul ES, especialmente áreas altas", nome:"Mancha de phoma ou seca de ponteiros", cientifico:"Boeremia spp. (complexo Phoma spp.)", agente:"Fungo associado a tecidos jovens e feridos", parte:"Folhas novas, pecíolos, ramos, brotos e frutos", sint_inicial:"Pequenas lesões escuras em folhas, pecíolos ou extremidades de ramos; escurecimento de brotos.", sint_avancado:"Necrose de ponteiros, queda de folhas, anelamento de ramos, seca de ramos produtivos, morte de brotações e danos em frutos.", confianca:0.55, manejo_prev:"Proteção contra frio e ventos fortes; evitar ferimentos de poda em época fria.", manejo_corr:"Fungicida protetor aplicado antes de períodos frios ou chuvosos, conforme orientação técnica."},
+{id:"CAF-006", ranking:6, categoria:"Praga", cultura:"Café Conilon", regiao:"Norte e Noroeste ES; ocorrência Estadual", nome:"Cochonilha-da-roseta", cientifico:"Planococcus citri, P. minor e associadas", agente:"Insetos sugadores, Hemiptera: Pseudococcidae", parte:"Frutos, rosetas, brotos e raízes", sint_inicial:"Pequenas colônias brancas, cerosas ou algodonosas em rosetas e pedúnculos; presença de formigas e mieleto.", sint_avancado:"Aborto e queda de frutos, deformação de rosetas, fumagina, enfraquecimento de ramos e redução da produção.", confianca:0.72, manejo_prev:"Controle de formigas associadas e monitoramento periódico de rosetas.", manejo_corr:"Inseticida sistêmico ou controle biológico (predadores naturais), conforme nível de infestação."},
+{id:"CAF-007", ranking:7, categoria:"Praga; Problema de Solo", cultura:"Café Arábica", regiao:"Sul ES: Muniz Freire, Iúna, Irupi, Brejetuba, Venda Nova do Imigrante", nome:"Mosca-das-raízes ou berne-das-raízes", cientifico:"Chiromyza vittata Wiedemann", agente:"Larvas de mosca, Diptera: Stratiomyidae", parte:"Raízes e planta inteira", sint_inicial:"Clorose generalizada, perda de vigor, folhas menores e queda de produtividade em reboleiras.", sint_avancado:"Murcha, desfolha, seca de ramos, morte de plantas e recuperação deficiente após recepa.", confianca:0.40, manejo_prev:"Evitar estresse hídrico e ferimentos radiculares; monitoramento em áreas de histórico.", manejo_corr:"Inseticida de solo registrado, aplicado por profissional habilitado."},
+{id:"CAF-008", ranking:8, categoria:"Estresse Abiótico", cultura:"Café Arábica e Café Conilon", regiao:"Estadual", nome:"Déficit hídrico e estresse térmico", cientifico:"Não se aplica; causa abiótica", agente:"Falta de água, temperatura elevada e irregularidade de chuvas", parte:"Folhas, flores, frutos, ramos e planta inteira", sint_inicial:"Folhas flácidas, enrolamento, fechamento estomático, murcha temporária e queda de flores.", sint_avancado:"Desfolha, seca de ponteiros, abortamento floral, frutos pequenos ou chochos, escaldadura e morte de plantas jovens.", confianca:0.60, manejo_prev:"Irrigação suplementar, cobertura do solo (mulching) e sombreamento em regiões críticas.", manejo_corr:"Irrigação de emergência quando disponível; não há correção química aplicável."},
+{id:"CAF-009", ranking:9, categoria:"Deficiência Nutricional", cultura:"Café Arábica e Café Conilon", regiao:"Estadual", nome:"Deficiência de potássio", cientifico:"Baixa disponibilidade de K no solo ou absorção limitada", agente:"Deficiência mineral", parte:"Folhas velhas, margens foliares, ramos e frutos", sint_inicial:"Amarelecimento nas pontas e margens de folhas velhas, com nervuras inicialmente verdes.", sint_avancado:"Necrose marginal, folhas com aspecto queimado, queda foliar, seca de ponteiros, frutos pequenos e pior enchimento.", confianca:0.58, manejo_prev:"Adubação potássica balanceada conforme análise de solo.", manejo_corr:"Reposição de potássio conforme recomendação de análise foliar/solo."},
+{id:"CAF-010", ranking:10, categoria:"Problema de Solo", cultura:"Café Arábica e Café Conilon", regiao:"Estadual, com focos regionais", nome:"Nematoides-das-galhas e associados", cientifico:"Meloidogyne exigua, M. incognita e associadas", agente:"Nematoides fitoparasitas", parte:"Raízes e planta inteira", sint_inicial:"Plantas pouco desenvolvidas, clorose, murcha nas horas quentes e reboleiras de baixo vigor.", sint_avancado:"Galhas radiculares, necrose, queda de folhas, seca de ramos, baixa resposta à adubação e morte de plantas em focos severos.", confianca:0.35, manejo_prev:"Uso de mudas certificadas, rotação de área ou pousio, cultivares tolerantes.", manejo_corr:"Nematicida registrado ou manejo biológico, conforme diagnóstico laboratorial."},
+{id:"CAF-011", ranking:11, categoria:"Praga", cultura:"Café Arábica e Café Conilon", regiao:"Sul, Norte e Noroeste ES", nome:"Cigarra-do-cafeeiro", cientifico:"Quesada gigas e Fidicinoides sp.", agente:"Ninfas sugadoras de raízes; adultos de cigarras", parte:"Raízes, ramos e planta inteira", sint_inicial:"Redução do vigor, amarelecimento, murcha e queda de folhas em reboleiras.", sint_avancado:"Seca de ramos, desfolha, baixa produção e morte de plantas após sucessivos ciclos.", confianca:0.45, manejo_prev:"Monitoramento de ninfas no solo e manejo da cobertura vegetal.", manejo_corr:"Inseticida de solo registrado, aplicado na época de emergência das ninfas."},
+{id:"CAF-012", ranking:12, categoria:"Praga", cultura:"Café Arábica e Café Conilon", regiao:"Estadual", nome:"Cochonilha-verde", cientifico:"Coccus viridis (Green)", agente:"Inseto sugador, Hemiptera: Coccidae", parte:"Folhas, ramos jovens e brotos", sint_inicial:"Pequenas cochonilhas verdes, mieleto e presença de formigas.", sint_avancado:"Fumagina, amarelecimento, redução do vigor e secamento de brotos em ataques intensos.", confianca:0.68, manejo_prev:"Controle de formigas associadas e preservação de inimigos naturais.", manejo_corr:"Inseticida sistêmico registrado, conforme nível de infestação."},
+{id:"CAF-013", ranking:13, categoria:"Praga", cultura:"Café Arábica e Café Conilon", regiao:"Estadual, sobretudo lavouras quentes e secas", nome:"Ácaro-vermelho", cientifico:"Oligonychus ilicis (McGregor)", agente:"Ácaro fitófago", parte:"Folhas", sint_inicial:"Pontilhado clorótico, perda de brilho e aspecto bronzeado.", sint_avancado:"Bronzeamento generalizado, secamento, queda de folhas e redução da fotossíntese.", confianca:0.66, manejo_prev:"Evitar estresse hídrico prolongado; monitoramento em época seca.", manejo_corr:"Acaricida registrado, conforme nível de infestação."},
+{id:"CAF-014", ranking:14, categoria:"Doença Bacteriana", cultura:"Café Arábica", regiao:"Sul ES e Estadual", nome:"Mancha aureolada ou crestamento bacteriano", cientifico:"Pseudomonas syringae pv. garcae", agente:"Bactéria fitopatogênica", parte:"Folhas, ramos, brotos e frutos jovens", sint_inicial:"Pequenas lesões encharcadas, translúcidas ou escuras, geralmente próximas às bordas e nervuras.", sint_avancado:"Lesões necróticas com halo amarelado, queda de folhas, seca de ponteiros e morte de brotos.", confianca:0.42, manejo_prev:"Evitar ferimentos mecânicos, adubação equilibrada e proteção contra frio.", manejo_corr:"Bactericida cúprico registrado e poda dos ramos afetados."},
+{id:"CAF-015", ranking:15, categoria:"Virose", cultura:"Café Arábica e Café Conilon", regiao:"Estadual", nome:"Coffee ringspot ou mancha anelar", cientifico:"Coffee ringspot virus — CoRSV", agente:"Vírus transmitido pelo ácaro Brevipalpus phoenicis", parte:"Folhas, frutos e ramos", sint_inicial:"Pequenos pontos ou anéis cloróticos em folhas e frutos.", sint_avancado:"Anéis concêntricos, manchas necróticas, queda foliar, desfolha de ramos e manchas em frutos.", confianca:0.38, manejo_prev:"Controle do ácaro vetor (Brevipalpus) e eliminação de plantas gravemente afetadas.", manejo_corr:"Não há cura direta; o manejo foca no controle do vetor com acaricida registrado."},
+{id:"CAF-016", ranking:16, categoria:"Doença Fúngica", cultura:"Café Arábica e Café Conilon", regiao:"Estadual, com relevância no conilon", nome:"Mancha-manteigosa", cientifico:"Colletotrichum spp. (complexo)", agente:"Fungo associado a folhas, frutos e ramos", parte:"Folhas, frutos e ramos", sint_inicial:"Pequenas manchas verde-claras, translúcidas ou de aparência oleosa.", sint_avancado:"Lesões necróticas, queda de folhas, seca de ramos, danos em frutos e redução do vigor.", confianca:0.50, manejo_prev:"Arejamento da lavoura e adubação equilibrada.", manejo_corr:"Fungicida registrado, conforme nível de infecção."},
+{id:"CAF-017", ranking:17, categoria:"Doença Fúngica; Problema de Solo", cultura:"Café Arábica e Café Conilon", regiao:"Estadual, principalmente áreas antigas", nome:"Roseliniose ou podridão-negra das raízes", cientifico:"Rosellinia spp.", agente:"Fungo de solo e madeira em decomposição", parte:"Raízes, colo e planta inteira", sint_inicial:"Amarelecimento, murcha parcial e redução do crescimento.", sint_avancado:"Podridão escura das raízes, seca de ramos, desfolha e morte de plantas em reboleiras.", confianca:0.32, manejo_prev:"Eliminação de tocos e restos lenhosos no solo; drenagem adequada.", manejo_corr:"Erradicação de plantas afetadas e tratamento de solo por profissional habilitado."},
+{id:"CAF-018", ranking:18, categoria:"Doença Fúngica; Problema de Solo", cultura:"Café Arábica e Café Conilon", regiao:"Estadual", nome:"Rizoctoniose ou podridão radicular", cientifico:"Rhizoctonia solani Kühn", agente:"Fungo de solo", parte:"Sementes, colo, raízes e mudas", sint_inicial:"Falhas de pegamento, tombamento, lesões pardas no colo e raízes pouco desenvolvidas.", sint_avancado:"Anelamento do colo, murcha, amarelecimento, seca e morte de mudas ou plantas jovens.", confianca:0.36, manejo_prev:"Substrato bem drenado em viveiro e uso de mudas sadias.", manejo_corr:"Fungicida de solo registrado; descarte de mudas afetadas."},
+{id:"CAF-019", ranking:19, categoria:"Deficiência Nutricional", cultura:"Café Arábica e Café Conilon", regiao:"Estadual", nome:"Deficiência de magnésio", cientifico:"Baixa disponibilidade de Mg ou desequilíbrio K/Ca/Mg", agente:"Deficiência mineral", parte:"Folhas velhas e planta inteira", sint_inicial:"Clorose internerval em folhas mais velhas, mantendo as nervuras verdes.", sint_avancado:"Amarelecimento intenso, manchas necróticas, queda de folhas e redução do crescimento.", confianca:0.55, manejo_prev:"Adubação equilibrada entre potássio, cálcio e magnésio, conforme análise de solo.", manejo_corr:"Reposição de magnésio conforme recomendação técnica."},
+{id:"CAF-020", ranking:20, categoria:"Problema de Manejo", cultura:"Café Arábica e Café Conilon", regiao:"Estadual", nome:"Fitotoxicidade por herbicida ou deriva", cientifico:"Não se aplica; dano químico por herbicida", agente:"Exposição a herbicidas, dose excessiva, deriva ou aplicação inadequada", parte:"Folhas, brotos, ramos e planta inteira", sint_inicial:"Clorose, murcha, encarquilhamento, deformação de folhas e paralisação da brotação.", sint_avancado:"Necrose de bordas e ponteiros, queda foliar, morte de brotos e redução da produção.", confianca:0.62, manejo_prev:"Uso correto de equipamentos, distância de segurança na aplicação e condições climáticas adequadas.", manejo_corr:"Suspender a exposição; recuperação é gradual e natural, sem produto corretivo específico."},
+{id:"CAF-021", ranking:21, categoria:"Doença Fúngica; Problema de Solo", cultura:"Café Arábica e Café Conilon", regiao:"Estadual, com atenção no Sul ES", nome:"Fusariose e cancro dos ramos", cientifico:"Fusarium solani, F. decemcellulare, F. lateritium e associadas", agente:"Complexo de fungos vasculares e de ramos", parte:"Ramos, caule, colo e raízes", sint_inicial:"Amarelecimento, murcha parcial e pequenas lesões em ramos.", sint_avancado:"Cancros, rachaduras, seca descendente, desfolha e morte de plantas ou setores da lavoura.", confianca:0.30, manejo_prev:"Evitar ferimentos de poda em época úmida; desinfecção de ferramentas entre plantas.", manejo_corr:"Poda e eliminação de ramos afetados; fungicida sistêmico conforme orientação técnica."},
+{id:"CAF-022", ranking:22, categoria:"Doença Fúngica", cultura:"Café Arábica e Café Conilon", regiao:"Estadual", nome:"Antracnose ou seca de ramos e frutos", cientifico:"Colletotrichum gloeosporioides complex", agente:"Fungo necrotrófico ou endofítico", parte:"Folhas, ramos, flores e frutos", sint_inicial:"Pequenas lesões escuras e necrose em flores, frutos ou ponteiros.", sint_avancado:"Seca de ramos, queda de flores, frutos mumificados, lesões deprimidas e perda de frutos.", confianca:0.48, manejo_prev:"Arejamento da lavoura e manejo de restos culturais.", manejo_corr:"Fungicida registrado, conforme nível de infecção."},
+{id:"CAF-023", ranking:23, categoria:"Doença Fúngica", cultura:"Café Arábica e Café Conilon", regiao:"Sul ES e áreas úmidas do Estado", nome:"Queima-do-fio ou mal-de-fio", cientifico:"Ceratobasidium noxium (sin. Pellicularia koleroga)", agente:"Fungo que forma micélio sobre ramos e folhas", parte:"Ramos, folhas e frutos", sint_inicial:"Fio ou cordão micelial claro sobre ramos e pecíolos; folhas presas por filamentos.", sint_avancado:"Folhas secas pendentes, queda foliar, morte de ponteiros e frutos secos retidos nos ramos.", confianca:0.64, manejo_prev:"Arejamento da lavoura e redução de sombreamento excessivo.", manejo_corr:"Fungicida cúprico registrado e poda dos ramos afetados."},
+{id:"CAF-024", ranking:24, categoria:"Praga", cultura:"Café Conilon", regiao:"Norte e Noroeste ES", nome:"Broca-da-haste", cientifico:"Xylosandrus spp.", agente:"Besouro escolitídeo; adultos e larvas associados a galerias", parte:"Ramos, hastes e caule", sint_inicial:"Pequenos orifícios, exsudação ou serragem e murcha de ponteiros.", sint_avancado:"Galerias internas, quebra de ramos, seca descendente e morte de hastes produtivas.", confianca:0.34, manejo_prev:"Eliminação de ramos infestados e monitoramento em lavouras de conilon.", manejo_corr:"Inseticida sistêmico registrado, conforme nível de infestação."},
+{id:"CAF-025", ranking:25, categoria:"Praga", cultura:"Café Conilon", regiao:"Norte e Noroeste ES", nome:"Lagarta-da-roseta", cientifico:"Cryptoblabes gnidiella (Millière)", agente:"Larva de mariposa, Lepidoptera: Pyralidae", parte:"Frutos, rosetas e brotos", sint_inicial:"Fios de seda, excrementos e frutos raspados ou unidos.", sint_avancado:"Danos em frutos, queda de chumbinhos, rosetas com resíduos e perda de qualidade.", confianca:0.52, manejo_prev:"Monitoramento de rosetas e preservação de inimigos naturais.", manejo_corr:"Inseticida seletivo registrado, conforme nível de infestação."},
+{id:"CAF-026", ranking:26, categoria:"Praga", cultura:"Café Arábica e Café Conilon", regiao:"Estadual", nome:"Tripes-do-cafeeiro", cientifico:"Frankliniella spp. e Heliothrips haemorrhoidalis", agente:"Insetos raspadores-sugadores, Thysanoptera", parte:"Folhas novas, flores, brotos e frutos", sint_inicial:"Prateamento, pontuações, deformação de folhas e queda de flores.", sint_avancado:"Folhas encarquilhadas, brotos deformados, flores abortadas e cicatrizes nos frutos.", confianca:0.60, manejo_prev:"Monitoramento em época seca e preservação de inimigos naturais.", manejo_corr:"Inseticida registrado, conforme nível de infestação."},
+{id:"CAF-027", ranking:27, categoria:"Deficiência Nutricional", cultura:"Café Arábica e Café Conilon", regiao:"Estadual", nome:"Deficiência de boro", cientifico:"Baixa disponibilidade de B ou baixa mobilidade no solo/planta", agente:"Deficiência mineral", parte:"Brotos, folhas novas, flores, frutos e raízes", sint_inicial:"Folhas novas deformadas, internódios curtos e morte de gemas apicais.", sint_avancado:"Superbrotamento, ramos curtos, frutos deformados, queda de flores e redução do sistema radicular.", confianca:0.57, manejo_prev:"Adubação com boro conforme análise de solo, especialmente em solos arenosos.", manejo_corr:"Reposição foliar ou via solo, conforme recomendação técnica."},
+{id:"CAF-028", ranking:28, categoria:"Deficiência Nutricional", cultura:"Café Arábica e Café Conilon", regiao:"Estadual", nome:"Deficiência de zinco", cientifico:"Baixa disponibilidade de Zn, pH elevado ou excesso de fósforo", agente:"Deficiência mineral", parte:"Folhas novas, brotos e internódios", sint_inicial:"Folhas pequenas, estreitas e clorose internerval nas brotações.", sint_avancado:"Encurtamento de internódios, rosetamento, folhas deformadas, baixo crescimento e redução de produção.", confianca:0.53, manejo_prev:"Adubação com zinco conforme análise de solo, atenção a solos com pH elevado.", manejo_corr:"Reposição foliar ou via solo, conforme recomendação técnica."},
+{id:"CAF-029", ranking:29, categoria:"Deficiência Nutricional", cultura:"Café Arábica e Café Conilon", regiao:"Estadual", nome:"Deficiência de fósforo", cientifico:"Baixa disponibilidade de P ou fixação em solos intemperizados", agente:"Deficiência mineral", parte:"Raízes, folhas velhas, ramos e frutos", sint_inicial:"Crescimento lento, folhas menores e coloração verde-escura ou arroxeada.", sint_avancado:"Baixo desenvolvimento radicular, pouca florada, frutos pequenos, folhas com tons arroxeados e queda de produtividade.", confianca:0.50, manejo_prev:"Adubação fosfatada na formação da lavoura, conforme análise de solo.", manejo_corr:"Reposição de fósforo conforme recomendação técnica."},
+{id:"CAF-030", ranking:30, categoria:"Problema de Solo", cultura:"Café Arábica e Café Conilon", regiao:"Estadual, principalmente áreas declivosas ou compactadas", nome:"Compactação, encharcamento e deficiência de oxigênio no solo", cientifico:"Não se aplica; condição física do solo", agente:"Restrição física e excesso de água no sistema radicular", parte:"Raízes e planta inteira", sint_inicial:"Crescimento lento, folhas amareladas, murcha irregular e baixa resposta à adubação.", sint_avancado:"Raízes superficiais e escuras, queda foliar, morte de raízes finas, seca de ramos e falhas de plantas.", confianca:0.33, manejo_prev:"Manejo do tráfego de máquinas, cobertura vegetal e drenagem adequada.", manejo_corr:"Subsolagem e melhoria da drenagem, conforme diagnóstico técnico."},
+{id:"CAF-031", ranking:31, categoria:"Praga", cultura:"Café Conilon", regiao:"Norte do ES e sul da Bahia (praga emergente)", nome:"Cochonilha-de-cauda", cientifico:"Pseudococcus sp.", agente:"Inseto sugador, Hemiptera: Pseudococcidae", parte:"Frutos, ramos, caule e folhas", sint_inicial:"Colônias brancas algodonosas com dois filamentos caudais característicos, que a diferenciam da cochonilha-da-roseta; presença de mieleto e formigas.", sint_avancado:"Infestação intensa, fumagina, enfraquecimento de ramos e queda de produção.", confianca:0.45, manejo_prev:"Monitoramento (praga emergente ainda em caracterização) e controle de formigas associadas.", manejo_corr:"Inseticida sistêmico registrado; recomenda-se acompanhar orientações atualizadas do Incaper."},
+{id:"CAF-032", ranking:32, categoria:"Praga; Problema de Solo", cultura:"Café Arábica e Café Conilon", regiao:"Estadual, mais severa em plantas com menos de 5 anos", nome:"Cochonilha-da-raiz", cientifico:"Dysmicoccus cryptus", agente:"Inseto sugador subterrâneo, Hemiptera: Pseudococcidae", parte:"Raízes", sint_inicial:"Amarelecimento e perda de vigor em plantas jovens, presença de formigas na base do tronco.", sint_avancado:"Formação de \"pipocas\" (galhas) nas raízes, redução do sistema radicular e morte de mudas em infestações severas.", confianca:0.28, manejo_prev:"Uso de mudas certificadas e monitoramento em plantas jovens.", manejo_corr:"Inseticida de solo registrado, aplicado por profissional habilitado."},
+{id:"CAF-033", ranking:33, categoria:"Praga", cultura:"Café Conilon (mais suscetível) e Café Arábica", regiao:"Estadual", nome:"Ácaro-branco", cientifico:"Polyphagotarsonemus latus (Banks)", agente:"Ácaro fitófago, Acari: Tarsonemidae", parte:"Folhas novas, brotos e frutos jovens", sint_inicial:"Bronzeamento e enrugamento de folhas novas, deformação de brotos.", sint_avancado:"Queda de folhas novas, paralisação do crescimento de ponteiros e deformação de frutos.", confianca:0.42, manejo_prev:"Monitoramento de brotos novos e manejo da irrigação para evitar estresse hídrico.", manejo_corr:"Acaricida registrado, conforme nível de infestação."},
+{id:"CAF-034", ranking:34, categoria:"Praga; Problema de Solo", cultura:"Café Arábica e Café Conilon", regiao:"Estadual, com focos regionais", nome:"Percevejo-castanho e besouro Migdolus (pragas radiculares)", cientifico:"Scaptocoris spp. e Migdolus fryanus", agente:"Insetos sugadores e broqueadores de raízes", parte:"Raízes e colo", sint_inicial:"Amarelecimento e murcha em reboleiras, perda de vigor sem sintomas foliares específicos.", sint_avancado:"Destruição do sistema radicular e morte de plantas em focos severos.", confianca:0.22, manejo_prev:"Monitoramento em áreas de histórico; atenção a rotações com culturas hospedeiras.", manejo_corr:"Inseticida de solo registrado, aplicado por profissional habilitado."},
+{id:"CAF-035", ranking:35, categoria:"Praga", cultura:"Café Arábica e Café Conilon", regiao:"Estadual", nome:"Formigas cortadeiras (saúvas e quenquéns)", cientifico:"Atta spp. e Acromyrmex spp.", agente:"Insetos desfolhadores, Hymenoptera: Formicidae", parte:"Folhas e mudas jovens", sint_inicial:"Recorte característico em meia-lua nas bordas das folhas; trilhas de formigas carregando fragmentos.", sint_avancado:"Desfolha severa, morte de mudas recém-plantadas e atraso no desenvolvimento de plantas jovens.", confianca:0.78, manejo_prev:"Monitoramento de carreiros e sauveiros, principalmente na implantação da lavoura.", manejo_corr:"Isca formicida registrada, aplicada conforme atividade das formigas."},
+{id:"CAF-036", ranking:36, categoria:"Praga; Problema de Solo", cultura:"Café Arábica e Café Conilon", regiao:"Estadual, focos regionais", nome:"Coró ou larva-branca", cientifico:"Larvas de Melolonthidae (Phyllophaga spp. e associadas)", agente:"Larva de besouro que se alimenta de raízes", parte:"Raízes", sint_inicial:"Amarelecimento e murcha em reboleiras; plantas com fácil desprendimento do solo ao puxar.", sint_avancado:"Raízes cortadas ou raspadas, tombamento de mudas e morte de plantas jovens.", confianca:0.24, manejo_prev:"Monitoramento do solo antes do plantio, evitando áreas com histórico da praga.", manejo_corr:"Inseticida de solo registrado, aplicado por profissional habilitado."},
+{id:"CAF-037", ranking:37, categoria:"Virose", cultura:"Café Arábica e Café Conilon", regiao:"Estadual, com atenção a áreas próximas a citricultura", nome:"Leprose do cafeeiro", cientifico:"Complexo viral (Cilevirus/Dichorhavirus) transmitido por Brevipalpus spp.", agente:"Vírus transmitido por ácaros do gênero Brevipalpus", parte:"Folhas, frutos e ramos", sint_inicial:"Lesões cloróticas circulares com halo, visualmente semelhantes ao coffee ringspot.", sint_avancado:"Necrose com coloração de \"canela\" nas lesões, queda de folhas e frutos, seca de ramos.", confianca:0.28, manejo_prev:"Controle do ácaro vetor (Brevipalpus) e distanciamento de áreas citrícolas quando possível.", manejo_corr:"Não há cura direta; o manejo foca no controle do vetor com acaricida registrado."},
+{id:"CAF-038", ranking:38, categoria:"Doença Fúngica", cultura:"Café Conilon (mais suscetível) e Café Arábica", regiao:"Estadual, com relevância no conilon", nome:"Verrugose ou sarna do cafeeiro", cientifico:"Sphaceloma coffeicola (sin. Elsinoë)", agente:"Fungo", parte:"Folhas, ramos novos e frutos", sint_inicial:"Pequenas lesões salientes e ásperas, com aspecto de verruga, em folhas jovens e ramos.", sint_avancado:"Deformação e enrolamento de folhas, lesões corticosas em frutos e seca de ponteiros.", confianca:0.52, manejo_prev:"Uso de cultivares menos suscetíveis e arejamento da lavoura.", manejo_corr:"Fungicida registrado, conforme nível de infecção."},
+{id:"CAF-039", ranking:39, categoria:"Doença Fúngica; Problema de Solo", cultura:"Café Arábica e Café Conilon", regiao:"Estadual, mais comum em solos encharcados", nome:"Gomose ou podridão-do-colo", cientifico:"Phytophthora spp.", agente:"Fungo/oomiceto de solo", parte:"Colo, raízes e caule", sint_inicial:"Escurecimento e amolecimento do colo, com exsudação de goma.", sint_avancado:"Anelamento do colo, murcha generalizada e morte da planta.", confianca:0.27, manejo_prev:"Drenagem adequada, evitando encharcamento na região do colo.", manejo_corr:"Fungicida específico registrado e melhoria da drenagem do solo."},
+{id:"CAF-040", ranking:40, categoria:"Deficiência Nutricional", cultura:"Café Arábica e Café Conilon", regiao:"Estadual", nome:"Deficiência de nitrogênio", cientifico:"Baixa disponibilidade de N no solo", agente:"Deficiência mineral", parte:"Folhas velhas e planta inteira", sint_inicial:"Clorose uniforme generalizada em folhas velhas, com folhas de brilho reduzido.", sint_avancado:"Amarelecimento intenso incluindo as nervuras, necrose e queda foliar, redução do crescimento.", confianca:0.52, manejo_prev:"Adubação nitrogenada parcelada, conforme análise de solo e foliar.", manejo_corr:"Reposição de nitrogênio conforme recomendação técnica."},
+{id:"CAF-041", ranking:41, categoria:"Deficiência Nutricional", cultura:"Café Arábica e Café Conilon", regiao:"Estadual", nome:"Deficiência de cálcio", cientifico:"Baixa disponibilidade de Ca no solo", agente:"Deficiência mineral", parte:"Folhas novas e gemas apicais", sint_inicial:"Clorose nos bordos de folhas novas, avançando entre as nervuras em direção ao centro.", sint_avancado:"Necrose de bordas e ápice foliar, morte de gemas apicais e deformação de folhas novas.", confianca:0.40, manejo_prev:"Calagem conforme análise de solo.", manejo_corr:"Reposição de cálcio via calcário ou gesso agrícola, conforme recomendação técnica."},
+{id:"CAF-042", ranking:42, categoria:"Deficiência Nutricional", cultura:"Café Arábica e Café Conilon", regiao:"Estadual", nome:"Deficiência de enxofre", cientifico:"Baixa disponibilidade de S no solo", agente:"Deficiência mineral", parte:"Folhas novas e planta inteira", sint_inicial:"Clorose generalizada iniciando em folhas novas, diferente da deficiência de nitrogênio.", sint_avancado:"Amarelecimento avançado por toda a planta e redução do crescimento.", confianca:0.38, manejo_prev:"Adubação com fontes de enxofre, conforme análise de solo.", manejo_corr:"Reposição de enxofre conforme recomendação técnica."},
+{id:"CAF-043", ranking:43, categoria:"Deficiência Nutricional", cultura:"Café Arábica e Café Conilon", regiao:"Estadual", nome:"Deficiência de manganês", cientifico:"Baixa disponibilidade de Mn, geralmente associada à deficiência de ferro", agente:"Deficiência mineral", parte:"Folhas novas (2º e 3º pares terminais)", sint_inicial:"Coloração verde-clara nas regiões internervais com pontuações amareladas.", sint_avancado:"Amarelão geral da folhagem, folha mais lisa e com nervuras pouco pronunciadas.", confianca:0.36, manejo_prev:"Monitoramento em solos muito calcareados, onde a deficiência é mais comum.", manejo_corr:"Reposição foliar de manganês conforme recomendação técnica."},
+{id:"CAF-044", ranking:44, categoria:"Deficiência Nutricional", cultura:"Café Arábica e Café Conilon", regiao:"Estadual, mais comum em mudas e plantas jovens", nome:"Deficiência de ferro", cientifico:"Baixa disponibilidade de Fe, comum em solos encharcados ou muito calcareados", agente:"Deficiência mineral", parte:"Folhas novas do baixeiro", sint_inicial:"Clorose internerval em folhas novas, com nervuras permanecendo verdes em reticulado fino.", sint_avancado:"Folhas quase brancas em casos severos e paralisação do crescimento.", confianca:0.38, manejo_prev:"Evitar excesso de calagem; monitorar em solos encharcados.", manejo_corr:"Reposição foliar de ferro conforme recomendação técnica."},
+{id:"CAF-045", ranking:45, categoria:"Deficiência Nutricional", cultura:"Café Arábica e Café Conilon", regiao:"Estadual, pouco comum", nome:"Deficiência de cobre", cientifico:"Baixa disponibilidade de Cu no solo (rara, pois costuma ser suprida por fungicidas cúpricos)", agente:"Deficiência mineral", parte:"Folhas novas", sint_inicial:"Perda de coloração em folhas novas, com nervuras secundárias salientes.", sint_avancado:"Deformação e curvatura das folhas (\"orelha de zebu\") e necrose marginal.", confianca:0.28, manejo_prev:"Monitoramento — deficiência rara, já que o cobre costuma ser suprido por fungicidas cúpricos.", manejo_corr:"Reposição foliar de cobre conforme recomendação técnica, se confirmada em análise."},
+{id:"CAF-046", ranking:46, categoria:"Estresse Abiótico", cultura:"Café Arábica (mais suscetível em altitude) e Café Conilon", regiao:"Áreas de altitude do Sul do ES e Caparaó", nome:"Geada", cientifico:"Não se aplica; dano por congelamento (geada branca e geada negra)", agente:"Formação de cristais de gelo intracelulares por queda brusca de temperatura", parte:"Folhas, ramos e planta inteira", sint_inicial:"Encharcamento e escurecimento das folhas, com aspecto de queimado.", sint_avancado:"Seca total da parte aérea, podendo levar à morte de ramos ou da planta inteira em geadas severas.", confianca:0.78, manejo_prev:"Escolha de locais menos suscetíveis, quebra-ventos e cobertura de mudas jovens em risco.", manejo_corr:"Poda de recuperação após o evento; não há produto corretivo aplicável."},
+{id:"CAF-047", ranking:47, categoria:"Estresse Abiótico", cultura:"Café Arábica e Café Conilon", regiao:"Estadual, eventos pontuais", nome:"Granizo", cientifico:"Não se aplica; dano mecânico por impacto", agente:"Impacto físico de pedras de gelo", parte:"Folhas, ramos e frutos", sint_inicial:"Perfurações e lacerações em folhas, lesões em frutos.", sint_avancado:"Desfolha severa, quebra de ramos e porta de entrada para fungos oportunistas.", confianca:0.62, manejo_prev:"Redes de proteção, quando viável economicamente, em áreas de risco recorrente.", manejo_corr:"Poda de recuperação e fungicida preventivo contra fungos oportunistas nas lesões."},
+{id:"CAF-048", ranking:48, categoria:"Estresse Abiótico; Problema de Manejo", cultura:"Café Arábica e Café Conilon", regiao:"Estadual, após poda ou decote", nome:"Escaldadura solar do tronco e ramos", cientifico:"Não se aplica; dano por exposição solar direta", agente:"Exposição de tecidos antes protegidos à radiação solar intensa após poda", parte:"Tronco e ramos", sint_inicial:"Manchas claras a escurecidas na casca voltada para o sol.", sint_avancado:"Rachaduras, morte do câmbio e porta de entrada para fungos causadores de cancro.", confianca:0.50, manejo_prev:"Poda gradual, evitando exposição súbita de ramos antes protegidos pela copa.", manejo_corr:"Proteção do tronco e ramos expostos; não há produto corretivo específico."},
+{id:"CAF-049", ranking:49, categoria:"Problema de Solo", cultura:"Café Arábica e Café Conilon", regiao:"Estadual, solos ácidos não corrigidos", nome:"Toxicidade por excesso de alumínio", cientifico:"Não se aplica; desequilíbrio químico do solo (pH baixo)", agente:"Alta saturação de alumínio trocável em solo ácido", parte:"Raízes e planta inteira", sint_inicial:"Raízes curtas e grossas, sistema radicular reduzido — sintoma pouco visível na parte aérea.", sint_avancado:"Baixo desenvolvimento geral, sintomas de deficiência nutricional associada e queda de produtividade.", confianca:0.18, manejo_prev:"Calagem preventiva conforme análise de solo em áreas ácidas.", manejo_corr:"Calagem corretiva conforme recomendação técnica, com base em nova análise de solo."},
+{id:"CAF-050", ranking:50, categoria:"Problema de Solo; Problema de Manejo", cultura:"Café Arábica e Café Conilon irrigados", regiao:"Estadual, lavouras irrigadas ou com adubação excessiva", nome:"Salinização ou excesso de sais no solo", cientifico:"Não se aplica; acúmulo de sais por irrigação ou adubação inadequada", agente:"Excesso de sais solúveis no solo, geralmente por água de irrigação salina ou superadubação", parte:"Raízes, folhas e planta inteira", sint_inicial:"Queima de bordas foliares e murcha mesmo com solo úmido.", sint_avancado:"Desfolha, redução de crescimento e morte de raízes finas.", confianca:0.32, manejo_prev:"Manejo adequado de irrigação e adubação; monitoramento da qualidade da água de irrigação.", manejo_corr:"Lixiviação de sais com irrigação controlada, conforme diagnóstico técnico."},
+];
+
+// ---------- Geração de chave preview ----------
+function generatePreviewKey(){
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let rand = '';
+  for(let i=0;i<28;i++) rand += chars[Math.floor(Math.random()*chars.length)];
+  const key = `tbka_preview_${rand}`;
+  document.getElementById('keyValue').textContent = key;
+  document.getElementById('keyOutput').classList.add('show');
+}
+function copyKey(){
+  const val = document.getElementById('keyValue').textContent;
+  if(!val) return;
+  navigator.clipboard.writeText(val).then(()=>{
+    const btn = event.target;
+    const original = btn.textContent;
+    btn.textContent = 'Copiado!';
+    setTimeout(()=>{ btn.textContent = original; }, 1400);
+  });
+}
+
+// ---------- Playground ----------
+function updatePlaygroundFields(){
+  const ep = document.getElementById('pgEndpoint').value;
+  const fieldA = document.getElementById('pgFieldA');
+  const fieldB = document.getElementById('pgFieldB');
+  const labelA = document.getElementById('pgFieldALabel');
+  const labelB = document.getElementById('pgFieldBLabel');
+  const inputA = document.getElementById('pgInputA');
+  const inputB = document.getElementById('pgInputB');
+
+  if(ep === 'list'){
+    fieldA.style.display=''; fieldB.style.display='';
+    labelA.textContent='categoria'; inputA.placeholder='ex: Praga';
+    labelB.textContent='cultura'; inputB.placeholder='ex: Café Conilon';
+  } else if(ep === 'byId'){
+    fieldA.style.display=''; fieldB.style.display='none';
+    labelA.textContent='id'; inputA.placeholder='ex: CAF-001';
+  } else if(ep === 'identify'){
+    fieldA.style.display=''; fieldB.style.display='none';
+    labelA.textContent='descricao'; inputA.placeholder='ex: manchas alaranjadas na folha';
+  }
+}
+
+function syntaxHighlight(json){
+  json = json.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function(match){
+    let cls = 'jn';
+    if(/^"/.test(match)){ cls = /:$/.test(match) ? 'jk' : 'js'; }
+    else if(/true|false/.test(match)){ cls = 'jb'; }
+    else if(/null/.test(match)){ cls = 'jz'; }
+    return '<span class="'+cls+'">'+match+'</span>';
+  });
+}
+
+function setPgResponse(obj, status){
+  const pretty = JSON.stringify(obj, null, 2);
+  document.getElementById('pgOutput').innerHTML = syntaxHighlight(pretty);
+  const statusEl = document.getElementById('pgStatus');
+  statusEl.textContent = status;
+  statusEl.className = 'pg-status ' + (status.startsWith('2') ? 'ok' : 'err');
+}
+
+const STOPWORDS = new Set(['de','da','do','das','dos','com','em','na','no','nas','nos','a','o','e','ou','um','uma','para','por','que','se','ao','aos','às']);
+function tokenize(text){
+  return text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9\s]/g,' ').split(/\s+/).filter(t=>t.length>2 && !STOPWORDS.has(t));
+}
+function searchableTextFor(d){
+  return [d.nome, d.cientifico, d.sint_inicial, d.sint_avancado, d.agente, d.parte, d.categoria, d.cultura, d.regiao].join(' ');
+}
+function localIdentify(query, topN=3){
+  const qTokens = tokenize(query);
+  if(qTokens.length===0) return [];
+  const scored = DATA.map(d=>{
+    const hay = tokenize(searchableTextFor(d));
+    const haySet = new Set(hay);
+    let score = 0;
+    qTokens.forEach(t=>{
+      if(haySet.has(t)) score += 2;
+      else if(hay.some(h=>h.includes(t)||t.includes(h))) score += 1;
+    });
+    return {record:d, score};
+  }).filter(s=>s.score>0);
+  scored.sort((a,b)=>b.score-a.score);
+  return scored.slice(0, topN);
+}
+
+function runPlayground(){
+  const ep = document.getElementById('pgEndpoint').value;
+  const a = document.getElementById('pgInputA').value.trim();
+  const b = document.getElementById('pgInputB').value.trim();
+
+  if(ep === 'byId'){
+    const record = DATA.find(d => d.id.toLowerCase() === a.toLowerCase());
+    if(!record){
+      setPgResponse({error:'not_found', message:'Nenhum registro encontrado para o id informado.'}, '404 Not Found');
+      return;
+    }
+    setPgResponse(record, '200 OK');
+  } else if(ep === 'list'){
+    let filtered = DATA;
+    if(a) filtered = filtered.filter(d => d.categoria.toLowerCase().includes(a.toLowerCase()));
+    if(b) filtered = filtered.filter(d => d.cultura.toLowerCase().includes(b.toLowerCase()));
+    const shown = filtered.slice(0,5).map(d=>({id:d.id, nome:d.nome, categoria:d.categoria, cultura:d.cultura, confianca:d.confianca}));
+    setPgResponse({
+      data: shown,
+      meta: { total_encontrado: filtered.length, exibindo: shown.length, limite_playground: 5 }
+    }, '200 OK');
+  } else if(ep === 'identify'){
+    if(!a){
+      setPgResponse({error:'bad_request', message:'Informe uma descrição em "descricao".'}, '400 Bad Request');
+      return;
+    }
+    const matches = localIdentify(a, 3);
+    if(matches.length===0){
+      setPgResponse({data: [], message:'Nenhum candidato encontrado nos 50 registros catalogados.'}, '200 OK');
+      return;
+    }
+    setPgResponse({
+      data: matches.map(m => ({id:m.record.id, nome:m.record.nome, categoria:m.record.categoria, relevancia:m.score})),
+      disclaimer: 'Estimativa de triagem — não substitui inspeção de campo ou análise laboratorial.'
+    }, '200 OK');
+  }
+}
+
+updatePlaygroundFields();
+</script>
+</body>
+</html>

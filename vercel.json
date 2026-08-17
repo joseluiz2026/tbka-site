@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/", "destination": "/tbka_prototype.html" }
+  ]
+}

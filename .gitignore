@@ -1,0 +1,26 @@
+# Vercel
+.vercel
+
+# Dependências
+node_modules
+
+# Variáveis de ambiente / segredos
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Build
+dist
+build
+.next
+out
+
+# Logs
+*.log
+npm-debug.log*
+
+# Sistema
+.DS_Store
+Thumbs.db
