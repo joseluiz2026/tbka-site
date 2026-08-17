@@ -908,6 +908,79 @@ document.addEventListener('keydown', function(e){
   if(e.key === 'Escape') closeLightbox();
 });
 
+// Schema v2 (opcional) — renderiza só o que existir; registros ainda em v1
+// (sem d.visual) não mostram nada disso, ficha continua idêntica a hoje.
+function renderVisualExtras(d){
+  const v = d.visual;
+  if(!v) return '';
+  let html = '';
+
+  if(v.evidencias_chave && v.evidencias_chave.length){
+    html += `<div class="section-block">
+      <h4>Evidências visuais-chave</h4>
+      <ul class="related-list" style="cursor:default;">
+        ${v.evidencias_chave.map(e=>`<li style="cursor:default;"><span>${e}</span></li>`).join('')}
+      </ul>
+    </div>`;
+  }
+
+  if(v.diagnostico_diferencial && v.diagnostico_diferencial.length){
+    html += `<div class="section-block">
+      <h4>Diagnóstico diferencial</h4>
+      <ul class="related-list">
+        ${v.diagnostico_diferencial.map(x=>`<li onclick="showDetail('${x.problema_id}')"><span>${x.semelhanca ? x.semelhanca+' — ' : ''}${x.diferenca_principal}</span><span class="rid">${x.problema_id}</span></li>`).join('')}
+      </ul>
+    </div>`;
+  }
+
+  if(v.evolucao && v.evolucao.length){
+    html += `<div class="section-block">
+      <h4>Evolução do problema</h4>
+      ${v.evolucao.map(e=>`<div class="symptom-stage ${e.estagio==='avancado'?'advanced':'initial'}">
+        <div class="stage-label">${e.estagio}</div>
+        <p>${e.aparencia}</p>
+      </div>`).join('')}
+    </div>`;
+  }
+
+  return html;
+}
+
+function renderVisualSideExtras(d){
+  const v = d.visual;
+  if(!v) return '';
+  let html = '';
+
+  if(v.confiabilidade_visual || v.diagnostico_exclusivamente_visual || v.necessita_confirmacao_laboratorial !== undefined){
+    html += `<div class="side-card">
+      <h4>Confiabilidade visual</h4>
+      ${v.confiabilidade_visual ? `<div class="meta-row"><span class="k">Reconhecimento visual</span><span class="v">${v.confiabilidade_visual}</span></div>` : ''}
+      ${v.diagnostico_exclusivamente_visual ? `<div class="meta-row"><span class="k">Só a foto basta?</span><span class="v">${v.diagnostico_exclusivamente_visual}</span></div>` : ''}
+      ${v.necessita_confirmacao_laboratorial !== undefined ? `<div class="meta-row"><span class="k">Confirmação laboratorial</span><span class="v">${v.necessita_confirmacao_laboratorial ? 'necessária' : 'não necessária'}</span></div>` : ''}
+    </div>`;
+  }
+
+  if(v.evidencias_confirmacao && v.evidencias_confirmacao.length){
+    html += `<div class="side-card">
+      <h4>Como confirmar</h4>
+      <ul class="related-list" style="cursor:default;">
+        ${v.evidencias_confirmacao.map(e=>`<li style="cursor:default;"><span>${e}</span></li>`).join('')}
+      </ul>
+    </div>`;
+  }
+
+  if(v.proxima_foto_recomendada && v.proxima_foto_recomendada.length){
+    html += `<div class="side-card">
+      <h4>O que fotografar</h4>
+      <ul class="related-list" style="cursor:default;">
+        ${v.proxima_foto_recomendada.map(e=>`<li style="cursor:default;"><span>${e}</span></li>`).join('')}
+      </ul>
+    </div>`;
+  }
+
+  return html;
+}
+
 function showDetail(id){
   const d = DATA.find(x=>x.id===id);
   if(!d) return;
@@ -975,6 +1048,7 @@ function showDetail(id){
           <p>${d.manejo_corr}</p>
           <p class="manejo-disclaimer">Recomendação por categoria de insumo — a prescrição de produto, dose e modo de aplicação deve ser feita por engenheiro agrônomo responsável (receituário agronômico).</p>
         </div>
+        ${renderVisualExtras(d)}
       </div>
 
       <div>
@@ -986,7 +1060,7 @@ function showDetail(id){
           </div>
           <div class="confidence-note">Estimativa de triagem visual — não substitui inspeção de campo, análise laboratorial ou identificação taxonômica.</div>
         </div>
-
+        ${renderVisualSideExtras(d)}
         <div class="side-card">
           <h4>Problemas relacionados</h4>
           <ul class="related-list">
