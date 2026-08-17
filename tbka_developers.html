@@ -311,9 +311,9 @@
 
 <div class="dev-hero">
   <div class="dev-hero-inner">
-    <div class="status-pill"><span class="dot"></span> Especificação preview — API ainda não está em produção</div>
+    <div class="status-pill"><span class="dot"></span> Backend em produção (tbka-api) — playground abaixo ainda simula localmente</div>
     <h1>A mesma base de conhecimento, <em>pronta pra virar API.</em></h1>
-    <p class="lede">Esta página documenta a interface planejada para consumir os 54 registros da TB Knowledge Agro por fora do catálogo — incluindo o TerraBase e outros consumidores. Hoje o formato abaixo é uma especificação; o playground simula as respostas localmente, sem servidor.</p>
+    <p class="lede">Esta página documenta a interface para consumir os 54 registros da TB Knowledge Agro por fora do catálogo — incluindo o TerraBase e outros consumidores. O servidor real (<code>tbka-api</code>) já responde nos quatro endpoints abaixo; o playground continua simulando as respostas localmente, sem chamar o servidor, só pra facilitar testar o formato.</p>
     <div class="hero-ctas">
       <a href="#endpoints" class="btn btn-primary">Ver endpoints planejados</a>
       <a href="#playground" class="btn btn-ghost">Testar playground simulado</a>
@@ -432,7 +432,7 @@
       </div>
       <div class="endpoint-example">
         <div class="code-label">Requisição</div>
-        <pre class="code-block">curl https://api.tbknowledgeagro.com/v1/records \
+        <pre class="code-block">curl https://tbka-api.vercel.app/v1/records \
   -H "Authorization: Bearer &lt;chave&gt;" \
   -G --data-urlencode "categoria=Praga" \
      --data-urlencode "cultura=Café Conilon"</pre>
@@ -451,7 +451,7 @@
       </div>
       <div class="endpoint-example">
         <div class="code-label">Requisição</div>
-        <pre class="code-block">curl https://api.tbknowledgeagro.com/v1/records/CAF-001 \
+        <pre class="code-block">curl https://tbka-api.vercel.app/v1/records/CAF-001 \
   -H "Authorization: Bearer &lt;chave&gt;"</pre>
       </div>
     </div>
@@ -469,7 +469,7 @@
       </div>
       <div class="endpoint-example">
         <div class="code-label">Requisição</div>
-        <pre class="code-block">curl -X POST https://api.tbknowledgeagro.com/v1/identify \
+        <pre class="code-block">curl -X POST https://tbka-api.vercel.app/v1/identify \
   -H "Authorization: Bearer &lt;chave&gt;" \
   -H "Content-Type: application/json" \
   -d '{"descricao": "manchas alaranjadas na folha"}'</pre>
@@ -479,17 +479,20 @@
     <div class="endpoint-card">
       <div class="endpoint-info">
         <div class="method-path"><span class="method get">GET</span><span class="path">/v1/records/search</span></div>
-        <h3>Busca por sintoma (roadmap)</h3>
-        <p>Planejada para busca semântica — encontrar registros por similaridade de sintomas mesmo sem palavras exatas em comum. Hoje o catálogo já faz correspondência por palavra-chave; a versão semântica depende do dataset v2.0 (IA treinada).</p>
+        <h3>Busca por palavra-chave</h3>
+        <p>Em produção, com os mesmos filtros de <code>/v1/records</code>, sem paginação. Faz correspondência por palavra-chave nos campos de texto. Busca por similaridade de sintomas (semântica, sem precisar da palavra exata) é planejada para o dataset v2.0 — ver Roadmap abaixo.</p>
         <table class="param-table">
           <tr><th>Parâmetro</th><th>Descrição</th></tr>
-          <tr><td>sintoma</td><td>Descrição livre do sintoma observado</td></tr>
+          <tr><td>q</td><td>Texto livre — busca em nome, sintomas, agente, parte afetada e id</td></tr>
+          <tr><td>categoria</td><td>Filtra por categoria (substring)</td></tr>
+          <tr><td>cultura</td><td>Filtra por cultura (match exato)</td></tr>
+          <tr><td>regiao</td><td>Filtra por região (substring)</td></tr>
         </table>
       </div>
       <div class="endpoint-example">
-        <div class="code-label">Status</div>
-        <pre class="code-block">// Ainda não especificado em detalhe.
-// Depende do dataset v2.0 (IA treinada) — ver Roadmap abaixo.</pre>
+        <div class="code-label">Exemplo</div>
+        <pre class="code-block">curl "https://tbka-api.vercel.app/v1/records/search?q=amarelecimento" \
+  -H "Authorization: Bearer SUA_CHAVE"</pre>
       </div>
     </div>
   </section>
