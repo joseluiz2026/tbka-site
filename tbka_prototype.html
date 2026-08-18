@@ -813,17 +813,51 @@ function triggerSlotUpload(key, useCamera){
   document.getElementById(id).click();
 }
 
-function handleSlotSelect(e, key){
+// Fotos de câmera de celular costumam vir com vários MB (4000px+); em base64
+// isso facilmente estoura o limite de corpo de requisição da Vercel (~4.5MB),
+// causando "Request Entity Too Large" no /api/identify. Redimensionamos e
+// recomprimimos no navegador antes de anexar, para caber com folga mesmo
+// com os 5 encaixes preenchidos.
+const PHOTO_MAX_DIMENSION = 1280;
+const PHOTO_JPEG_QUALITY = 0.78;
+
+function resizeImageFile(file, maxDim, quality){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxDim || height > maxDim) {
+          if (width > height) { height = Math.round(height * maxDim / width); width = maxDim; }
+          else { width = Math.round(width * maxDim / height); height = maxDim; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = () => reject(new Error('Não foi possível ler a imagem.'));
+      img.src = ev.target.result;
+    };
+    reader.onerror = () => reject(new Error('Não foi possível ler o arquivo.'));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function handleSlotSelect(e, key){
   const file = e.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = function(ev){
-    const dataUrl = ev.target.result;
-    slotAttachments[key] = { dataUrl, base64: dataUrl.split(',')[1], mimeType: file.type };
-    renderPhotoSlots();
-  };
-  reader.readAsDataURL(file);
   e.target.value = '';
+  if(!file) return;
+  try{
+    const dataUrl = await resizeImageFile(file, PHOTO_MAX_DIMENSION, PHOTO_JPEG_QUALITY);
+    slotAttachments[key] = { dataUrl, base64: dataUrl.split(',')[1], mimeType: 'image/jpeg' };
+    renderPhotoSlots();
+  }catch(err){
+    console.error('Falha ao processar foto', err);
+    alert('Não foi possível processar essa foto. Tente novamente ou escolha outra.');
+  }
 }
 
 function removeSlotAttachment(key, event){
