@@ -545,13 +545,13 @@
     <div class="search-box">
       <input type="text" id="searchInput" placeholder="Buscar por nome, sintoma, praga, espécie científica…" oninput="renderGrid()">
     </div>
-    <select id="categoryFilter" onchange="renderGrid()">
+    <select id="categoryFilter" onchange="renderGrid(); scrollToResultsOnMobile();">
       <option value="">Todas as categorias</option>
     </select>
-    <select id="culturaFilter" onchange="renderGrid()">
+    <select id="culturaFilter" onchange="renderGrid(); scrollToResultsOnMobile();">
       <option value="">Todas as culturas</option>
     </select>
-    <select id="regiaoFilter" onchange="renderGrid()">
+    <select id="regiaoFilter" onchange="renderGrid(); scrollToResultsOnMobile();">
       <option value="">Todas as regiões</option>
     </select>
     <button class="photo-id-btn" onclick="openPhotoModal()">📷 Identificar por foto</button>
@@ -722,6 +722,17 @@ function matchesFilters(d, q, cat, cult, reg){
     if(!hay.includes(q.toLowerCase())) return false;
   }
   return true;
+}
+
+function scrollToResultsOnMobile(){
+  if (!window.matchMedia('(max-width:640px)').matches) return;
+  const grid = document.getElementById('grid');
+  const controlsWrap = document.getElementById('controlsWrap');
+  const stickyTop = controlsWrap ? (parseFloat(getComputedStyle(controlsWrap).top) || 0) : 0;
+  const barHeight = controlsWrap ? controlsWrap.offsetHeight : 0;
+  const gridDocTop = grid.getBoundingClientRect().top + window.pageYOffset;
+  const top = Math.max(gridDocTop - stickyTop - barHeight - 8, 0);
+  window.scrollTo({ top, behavior: 'smooth' });
 }
 
 function renderGrid(){
