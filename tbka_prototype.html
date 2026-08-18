@@ -240,8 +240,14 @@
     align-items:center; justify-content:center; text-align:center; padding:6px;
   }
   .photo-slot:hover{border-color:var(--rust); background:var(--surface-alt);}
-  .photo-slot.filled{border-style:solid; border-color:var(--line);}
-  .photo-slot .slot-icon{font-size:20px; color:var(--text-faint); margin-bottom:4px;}
+  .photo-slot.filled{border-style:solid; border-color:var(--line); cursor:default;}
+  .photo-slot .slot-actions{display:flex; gap:6px; margin-bottom:4px;}
+  .photo-slot .slot-action-btn{
+    width:26px; height:26px; border-radius:50%; border:1px solid var(--line-strong);
+    background:var(--surface); font-size:13px; cursor:pointer; padding:0;
+    display:flex; align-items:center; justify-content:center; color:var(--text-dim); transition:.15s;
+  }
+  .photo-slot .slot-action-btn:hover{border-color:var(--rust); background:var(--surface-hover); color:var(--rust);}
   .photo-slot .slot-label{font-size:10.5px; color:var(--text-dim); line-height:1.25;}
   .photo-slot.filled .slot-label{
     position:absolute; bottom:0; left:0; right:0; background:rgba(0,0,0,0.65); color:#fff;
@@ -779,8 +785,9 @@ function closePhotoModal(){
   document.getElementById('photoModal').classList.remove('open');
 }
 
-function triggerSlotUpload(key){
-  document.getElementById('slotInput_' + key).click();
+function triggerSlotUpload(key, useCamera){
+  const id = (useCamera ? 'slotInputCamera_' : 'slotInputGallery_') + key;
+  document.getElementById(id).click();
 }
 
 function handleSlotSelect(e, key){
@@ -806,11 +813,15 @@ function renderPhotoSlots(){
   const grid = document.getElementById('photoSlotsGrid');
   grid.innerHTML = PHOTO_SLOTS.map(slot=>{
     const att = slotAttachments[slot.key];
-    return `<div class="photo-slot ${att ? 'filled' : ''}" onclick="triggerSlotUpload('${slot.key}')">
-      <input type="file" accept="image/*" id="slotInput_${slot.key}" style="display:none" onchange="handleSlotSelect(event, '${slot.key}')">
+    return `<div class="photo-slot ${att ? 'filled' : ''}">
+      <input type="file" accept="image/*" capture="environment" id="slotInputCamera_${slot.key}" style="display:none" onchange="handleSlotSelect(event, '${slot.key}')">
+      <input type="file" accept="image/*" id="slotInputGallery_${slot.key}" style="display:none" onchange="handleSlotSelect(event, '${slot.key}')">
       ${att
-        ? `<img src="${att.dataUrl}"><button type="button" class="remove-thumb" onclick="removeSlotAttachment('${slot.key}', event)">✕</button>`
-        : `<div class="slot-icon">📷</div>`
+        ? `<img src="${att.dataUrl}" onclick="triggerSlotUpload('${slot.key}', false)"><button type="button" class="remove-thumb" onclick="removeSlotAttachment('${slot.key}', event)">✕</button>`
+        : `<div class="slot-actions">
+            <button type="button" class="slot-action-btn" onclick="triggerSlotUpload('${slot.key}', true)" aria-label="Tirar foto">📷</button>
+            <button type="button" class="slot-action-btn" onclick="triggerSlotUpload('${slot.key}', false)" aria-label="Escolher da galeria">🖼️</button>
+          </div>`
       }
       <div class="slot-label">${slot.label}</div>
     </div>`;
