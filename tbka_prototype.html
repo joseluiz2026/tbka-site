@@ -17,6 +17,14 @@
 <meta name="twitter:title" content="TB Knowledge Agro — Biblioteca Agrícola">
 <meta name="twitter:description" content="Uma base estruturada de pragas, doenças, deficiências e distúrbios do café arábica e conilon no Espírito Santo.">
 <meta name="twitter:image" content="https://terrabaseka.vercel.app/images/hero-cafezal-og.jpg">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#C1512C">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="TBKA">
+<link rel="apple-touch-icon" href="/images/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/images/icon-512.png">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap');
 
@@ -1150,6 +1158,11 @@ function toggleMobileMenu(){
 // init
 populateFilters();
 renderGrid();
+</script>
+<script>
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+  }
 </script>
 </body>
 </html>
